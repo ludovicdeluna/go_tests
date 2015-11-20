@@ -1,0 +1,12 @@
+build_date: 2015-06-16 18:00:85:Z
+go_version: (1.0) 1.5 - Google
+vendor:
+  github.com/ludovic/stringutil:
+    version: 1.4
+    repo:
+      url: git://github.com/ludovic/stringutil
+      tag: 1.4
+    vendor: none
+    link: none
+
+link: none
