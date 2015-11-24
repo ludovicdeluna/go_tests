@@ -43,7 +43,6 @@ func HelloWorldReverse() (message string){
 }
 
 func Slices() string{
-	//message := make([]string, 5, 5)
 	message := []string{"h","e","l","l","o"}
 	return fmt.Sprintf("Slices [2:5] from %s : %s", message, message[2:5])
 }
