@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 5
+	testCase := 6
 
 	switch testCase {
 		case 0 : result = HelloWorld()
@@ -20,6 +20,7 @@ func main() {
 		case 3 : result = SliceOnArray()
 		case 4 : result = Sum(5, 5, 10)
 		case 5 : result = Choose()
+		case 6 : result = Pointers()
 	}
 
 	Show(result)
@@ -100,6 +101,43 @@ func ChooseMsg() func(code string, values ...interface{}) string{
 	return func(code string, values ...interface{}) string{
 		return fmt.Sprintf(msg[code], values...) // values -> value1, value2, value3
 	}
+}
+
+func Pointers() string{
+	// Thanks to GC, Go has no Arithmetic Pointer
+	var variable int
+	var pointer = new(int) // Our pointer
+	var results = make([]string, 9) // Slice of 9 empty string
+
+	variable = 255
+	*pointer = 10 // *pointer to act on its content and not on pointer itself
+
+	results[0] = fmt.Sprint( "a/ Pointer - Address : ", pointer )
+	results[1] = fmt.Sprint( "a/ Pointer - Content : ", *pointer )
+	results[2] = fmt.Sprint( "a/ -- Call by Ref (*) -- : ", PassByReference(pointer) )
+	results[3] = fmt.Sprint( "a/ Pointer - After call : ", *pointer )
+
+	// Pass by copy is the default parameter mechanism for functions in Go
+	results[4] = fmt.Sprint( "b/ Variable - Content : ", variable )
+	results[5] = fmt.Sprint( "b/ -- Call by Copy -- : ", PassByCopy(variable) )
+	results[6] = fmt.Sprint( "b/ Variable - After call : ", variable )
+
+	results[7] = fmt.Sprint( "c/ -- Call by Ref (&)-- : ", PassByReference(&variable) )
+	results[8] = fmt.Sprint( "c/ Variable - After call : ", variable )
+
+	return strings.Join(results, "\n")
+}
+
+// Sample used by Pointers - Signature of this function require a Pointer T int
+func PassByReference(value *int) int{
+	*value = *value + 18
+	return *value
+}
+
+// Sample used by Pointers - Signature of this function require an Integer
+func PassByCopy(value int) int{
+	value = value + 18
+	return value
 }
 
 func Show(result string) {
