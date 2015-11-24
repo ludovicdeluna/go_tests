@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 7
+	testCase := 8
 
 	switch testCase {
 	case 0 : result = HelloWorld()
@@ -22,6 +22,7 @@ func main() {
 	case 5 : result = Choose()
 	case 6 : result = Pointers()
 	case 7 : result = Label()
+	case 8 : result = BreakOnLabel()
 	}
 
 	Show(result)
@@ -142,7 +143,7 @@ func PassByCopy(value int) int{
 
 func Label() (result string){
 	num, err := strconv.Atoi( strings.Join(os.Args[1:], "") )
-	if err != nil {goto ShowError} // goto or (in loop): continue / break
+	if err != nil {goto ShowError}
 
 	if num > 10 {
 		result = "Un chiffre au dessus de 10"
@@ -153,6 +154,29 @@ func Label() (result string){
 
 	ShowError:
 	return "Saisir un chiffre"
+}
+
+func BreakOnLabel() (result string){
+	fmt.Print("Count number from 0 to 10 and print them without 5, 6, 7 and 10\n\n")
+	x := 0
+	LoopLabel: // A Break/Continue Label, MUST be declared ahead a loop statment
+	for { // Infinite loop.
+		switch x {
+		case 1 : // Break without label exit the current statement (here: switch)
+			if true == true { break }
+			x = 4
+		case 5 : // Exit For and re-run: Jump to value 8, do not print value 5 to 7
+			x = 8
+			continue LoopLabel
+		case 10 : // Exit For and Stop: Do not print value 10
+			break LoopLabel
+		}
+		// Code bellow will not be executed when Exit For is applied
+		fmt.Printf("Show number => %d\n", x)
+		x += 1
+	}
+	result = fmt.Sprintf("Le résultat de x est : %d", x)
+	return
 }
 
 
