@@ -11,16 +11,17 @@ import (
 
 func main() {
 	var result string
-	testCase := 6
+	testCase := 7
 
 	switch testCase {
-		case 0 : result = HelloWorld()
-		case 1 : result = HelloWorldReverse()
-		case 2 : result = Slices()
-		case 3 : result = SliceOnArray()
-		case 4 : result = Sum(5, 5, 10)
-		case 5 : result = Choose()
-		case 6 : result = Pointers()
+	case 0 : result = HelloWorld()
+	case 1 : result = HelloWorldReverse()
+	case 2 : result = Slices()
+	case 3 : result = SliceOnArray()
+	case 4 : result = Sum(5, 5, 10)
+	case 5 : result = Choose()
+	case 6 : result = Pointers()
+	case 7 : result = Label()
 	}
 
 	Show(result)
@@ -74,14 +75,13 @@ func Choose() (result string){
 	} else {
 		msg := ChooseMsg()
 		switch {
-			case value > 30 : result = msg(">", 30)
-			case 21 <= value && value <= 30 : result = msg("[-]", 20, 30)
-			case 11 <= value && value <= 20 : result = msg("[-]", 10, 20)
-			case  0 <= value && value <= 10 : result = msg("<", 10)
-			case value < -20 : result += msg("--", 20) ; fallthrough
-			case value < -10 : result += msg("--", 10) ; fallthrough
-		default:
-			result += msg("Neg", value)
+		case value > 30 : result = msg(">", 30)
+		case 21 <= value && value <= 30 : result = msg("[-]", 20, 30)
+		case 11 <= value && value <= 20 : result = msg("[-]", 10, 20)
+		case  0 <= value && value <= 10 : result = msg("<", 10)
+		case value < -20 : result += msg("--", 20) ; fallthrough
+		case value < -10 : result += msg("--", 10) ; fallthrough
+		default: result += msg("Neg", value)
 		}
 	}
 	return
@@ -139,6 +139,22 @@ func PassByCopy(value int) int{
 	value = value + 18
 	return value
 }
+
+func Label() (result string){
+	num, err := strconv.Atoi( strings.Join(os.Args[1:], "") )
+	if err != nil {goto ShowError} // goto or (in loop): continue / break
+
+	if num > 10 {
+		result = "Un chiffre au dessus de 10"
+	}else{
+		result = "Un chiffre en dessous de 10 ou négatif"
+	}
+	return
+
+	ShowError:
+	return "Saisir un chiffre"
+}
+
 
 func Show(result string) {
 	if( len(result) == 0 ){
