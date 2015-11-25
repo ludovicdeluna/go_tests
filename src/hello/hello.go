@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 8
+	testCase := 9
 
 	switch testCase {
 	case 0 : result = HelloWorld()
@@ -23,6 +23,7 @@ func main() {
 	case 6 : result = Pointers()
 	case 7 : result = Label()
 	case 8 : result = BreakOnLabel()
+	case 9 : result = Structures()
 	}
 
 	Show(result)
@@ -178,6 +179,60 @@ func BreakOnLabel() (result string){
 	return
 }
 
+func Structures() (result string){
+	// The simplest usage of structs, with initialize of values (keys are optionals)
+	cats := []struct {
+		name string
+		age int
+		madeSound string
+	} {
+		{"SweetyTheCat", 2, "SweetyTheCat make the sound 'Miaow'"},
+		{"CopyCat", 155, "CopyCat make the sound 'Miaow'"},
+	} // Houch: We'r not DRY !
+
+	// Show all cats in the loop
+	for _, cat := range cats {
+		fmt.Printf(
+			"Name : %s, age : %d -> %s\n",
+			cat.name,
+			cat.age,
+			cat.madeSound,
+		)
+	}
+
+	// Be DRY by using custom type wich embed a method function (see bellow).
+	// -> Commonly used with struct and interface, but can work with all types
+	dogs := []Dog {
+		{ name: "SnoopyTheDog", age: 7 },
+		{ name: "DingoCartoonDog", age: 75 },
+	}
+
+	// Place all dogs into result
+	for _, dog := range dogs {
+		result += fmt.Sprintf(
+			"Name : %s, age : %d -> %s\n",
+			dog.name,
+			dog.age,
+			dog.madeSound(),
+		)
+	}
+
+	return
+}
+
+// Type used by Structures function: the T Dog
+type Dog struct {
+	name string
+	age int
+}
+
+// Method Function MUST be declared into a package anonymous function
+func(d Dog) madeSound() string{
+	return fmt.Sprintf("%s make the sound '%s'", d.name, "Waf !")
+}
+
+// Next see: https://golang.org/doc/effective_go.html#type_switch
+// See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
 
 func Show(result string) {
 	if( len(result) == 0 ){
