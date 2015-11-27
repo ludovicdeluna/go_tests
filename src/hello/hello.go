@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 9
+	testCase := 10
 
 	switch testCase {
 	case 0 : result = HelloWorld()
@@ -24,6 +24,7 @@ func main() {
 	case 7 : result = Label()
 	case 8 : result = BreakOnLabel()
 	case 9 : result = Structures()
+	case 10: result = Interfaces()
 	}
 
 	Show(result)
@@ -220,17 +221,60 @@ func Structures() (result string){
 	return
 }
 
-// Type used by Structures function: the T Dog
+// Named Type, used by Structures function: the T Dog
 type Dog struct {
 	name string
 	age int
 }
 
-// Method Function MUST be declared into a package anonymous function
+// Method of Named Type MUST be declared outside functions.
+// IMPOSSIBLE on Pointers and interface
 func(d Dog) madeSound() string{
-	return fmt.Sprintf("%s make the sound '%s'", d.name, "Waf !")
+	return fmt.Sprintf("%s make the sound '%s' !", d.name, "Waf")
 }
 
+// Interface that ensure methods definition. Used by Interfaces function.
+type Animal interface {
+	madeSound() string
+}
+
+// Named Type, used by Interfaces function: the T Cat
+type Cat struct {
+	name string
+	age int
+	color string
+}
+
+// Method of Named Type for Cat. Used by Interfaces function.
+func(c Cat) madeSound() string{
+	return fmt.Sprintf("%s make a %s '%s' !", c.name, c.color, "Roroon")
+}
+
+// Interface sample
+func Interfaces() (result string){
+	animals := []Animal {
+		Dog{ name: "SnoopyTheDog", age: 7 },
+		Cat{ name: "SweetyTheCat", age: 2, color: "white" },
+		Dog{ name: "DingoCartoonDog", age: 75 },
+	}
+
+	// Also possible to use in parameter (animals[0]) or (animals[0], animals[1])
+	// but not just animals (an array)
+	return TellWhatYouSpeak(animals...)
+}
+
+// Used by Interface function. When interface used in parameter, alway rely on its methods.
+// Interface are used to inform on What this object can do. Not on what type is contained into it.
+func TellWhatYouSpeak(any_animals ...Animal) string{
+	var array_of_sounds = make([]string, len(any_animals))
+	for index := range any_animals {
+		array_of_sounds[index] = any_animals[index].madeSound()
+	}
+	return strings.Join(array_of_sounds, "\n")
+}
+
+// To finish: http://research.swtch.com/interfaces
+// Actually: http://jordanorelli.com/post/32665860244/how-to-use-interfaces-in-go
 // Next see: https://golang.org/doc/effective_go.html#type_switch
 // See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
 
