@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 10
+	testCase := 11
 
 	switch testCase {
 	case 0:
@@ -36,6 +36,8 @@ func main() {
 		result = Structures()
 	case 10:
 		result = Interfaces()
+	case 11:
+		result = Setter()
 	}
 
 	Show(result)
@@ -301,8 +303,24 @@ func TellWhatYouSpeak(any_animals ...Animal) string {
 	return strings.Join(array_of_sounds, "\n")
 }
 
-// To finish: http://research.swtch.com/interfaces
-// Actually: http://jordanorelli.com/post/32665860244/how-to-use-interfaces-in-go
+// Sample: Create setter by use pointer.
+func Setter() (result string){
+	dog := Dog{name: "SnoopyTheDog", age: 7}
+	if age := dog.setAge(55) ; age > 10 { // Test with block var into it
+		result = fmt.Sprintf("Age supérieur à 10 : %d", age)
+	} else {
+		result = fmt.Sprintf("Age inchangé (echec) : %d", age)
+	}
+	return
+}
+
+// As any parameter, methods parameters are copy of original object.
+// It's possible to create setter methdos by using Pointer:
+func (dog *Dog) setAge(age int) int {
+	dog.age = age
+	return dog.age
+}
+
 // Next see: https://golang.org/doc/effective_go.html#type_switch
 // See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
 
