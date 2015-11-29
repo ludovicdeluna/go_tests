@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 11
+	testCase := 12
 
 	switch testCase {
 	case 0:
@@ -38,6 +38,8 @@ func main() {
 		result = Interfaces()
 	case 11:
 		result = Setter()
+	case 12:
+		result = DuckTyping()
 	}
 
 	Show(result)
@@ -319,6 +321,59 @@ func Setter() (result string){
 func (dog *Dog) setAge(age int) int {
 	dog.age = age
 	return dog.age
+}
+
+// Duck typing sample
+func DuckTyping() string {
+	cat := Cat{name: "SweetyTheCat", age: 2, color: "white"}
+	number := cat.age
+	str := "Un Chat"
+	results := make([]string, 6)
+
+	results[0] = WhatIAm(cat)
+	results[1] = WhatIAm(number)
+	results[2] = WhatIAm(str)
+
+	ChangeMe(&cat)
+	ChangeMe(&number)
+	ChangeMe(&str)
+	ChangeMe(&Dog{name: "Yark yark !"}) //Empty T Dog object: Dog{}
+
+	results[3] = WhatIAm(cat)
+	results[4] = WhatIAm(number)
+	results[5] = WhatIAm(str)
+
+	return strings.Join(results, "\n")
+}
+
+// Use empty interface to apply Duck Typing techniques
+func WhatIAm(something interface{}) (result string){
+	if animal, is_animal := something.(Animal) ; is_animal {
+		return animal.madeSound()
+	}
+
+	switch identified_object := something.(type){
+	case string:
+		result = fmt.Sprintf("Un chaine : %s", identified_object)
+	case int:
+		result = fmt.Sprintf("Un chiffre : %d", identified_object)
+	}
+	return
+}
+
+// Use empty interface to apply Duck Typing techniques on Pointer
+func ChangeMe(something interface{}) {
+
+	switch identified_object := something.(type){
+	case *Cat: // Test Nammed Type give access fields and methods
+		identified_object.color = "Black"
+	case Animal: // Test interface give only access to methods
+		fmt.Printf("Test Animal from Pointer: %s\n", identified_object.madeSound())
+	case *string:
+		*identified_object = "Un truc bizarre !"
+	case *int:
+		*identified_object = *identified_object * 2
+	}
 }
 
 // Next see: https://golang.org/doc/effective_go.html#type_switch
