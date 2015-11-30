@@ -265,9 +265,17 @@ func (d Dog) madeSound() string {
 	return fmt.Sprintf("%s make the sound '%s' !", d.name, "Waf")
 }
 
+// As any parameter, methods parameters are copy of original object.
+// It's possible to create setter methdos by using Pointer:
+func (dog *Dog) setAge(age int) int {
+	dog.age = age
+	return dog.age
+}
+
 // Interface that ensure methods definition. Used by Interfaces function.
 type Animal interface {
 	madeSound() string
+  setAge(newage int) int // Because setAge use pointer, any object of Animal MUST be a pointer.
 }
 
 // Named Type, used by Interfaces function: the T Cat
@@ -282,12 +290,20 @@ func (c Cat) madeSound() string {
 	return fmt.Sprintf("%s make a %s '%s' !", c.name, c.color, "Roroon")
 }
 
+func (cat *Cat) setAge(age int) int {
+	cat.age = age
+	return cat.age
+}
+
 // Interface sample
 func Interfaces() (result string) {
+	// Because we rely on animal and one of its methods use pointer, any
+	// object must be a reference. Animal, as interface, is more
+	// focused on methods, this is no tricky at this point of view.
 	animals := []Animal{
-		Dog{name: "SnoopyTheDog", age: 7},
-		Cat{name: "SweetyTheCat", age: 2, color: "white"},
-		Dog{name: "DingoCartoonDog", age: 75},
+		&Dog{name: "SnoopyTheDog", age: 7},
+		&Cat{name: "SweetyTheCat", age: 2, color: "white"},
+		&Dog{name: "DingoCartoonDog", age: 75},
 	}
 
 	// Also possible to use in parameter (animals[0]) or (animals[0], animals[1])
@@ -316,16 +332,10 @@ func Setter() (result string){
 	return
 }
 
-// As any parameter, methods parameters are copy of original object.
-// It's possible to create setter methdos by using Pointer:
-func (dog *Dog) setAge(age int) int {
-	dog.age = age
-	return dog.age
-}
-
 // Duck typing sample
 func DuckTyping() string {
 	cat := Cat{name: "SweetyTheCat", age: 2, color: "white"}
+	dog := Dog{name: "Snoopy", age: 5}
 	number := cat.age
 	str := "Un Chat"
 	results := make([]string, 6)
@@ -333,6 +343,10 @@ func DuckTyping() string {
 	results[0] = WhatIAm(cat)
 	results[1] = WhatIAm(number)
 	results[2] = WhatIAm(str)
+
+	fmt.Printf("Age of dog is : %d\n", dog.age)
+	ChangeMe(&dog)
+	fmt.Printf("Age of dog now is : %d\n", dog.age)
 
 	ChangeMe(&cat)
 	ChangeMe(&number)
@@ -353,6 +367,8 @@ func WhatIAm(something interface{}) (result string){
 	}
 
 	switch identified_object := something.(type){
+	case Cat:
+		result = fmt.Sprintf("Ma couleur : %s", identified_object.color)
 	case string:
 		result = fmt.Sprintf("Un chaine : %s", identified_object)
 	case int:
@@ -369,6 +385,7 @@ func ChangeMe(something interface{}) {
 		identified_object.color = "Black"
 	case Animal: // Test interface give only access to methods
 		fmt.Printf("Test Animal from Pointer: %s\n", identified_object.madeSound())
+		identified_object.setAge(55)
 	case *string:
 		*identified_object = "Un truc bizarre !"
 	case *int:
