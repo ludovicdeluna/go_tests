@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 12
+	testCase := 13
 
 	switch testCase {
 	case 0:
@@ -40,6 +40,8 @@ func main() {
 		result = Setter()
 	case 12:
 		result = DuckTyping()
+	case 13:
+		result = IndirectAccess()
 	}
 
 	Show(result)
@@ -393,7 +395,83 @@ func ChangeMe(something interface{}) {
 	}
 }
 
-// Next see: https://golang.org/doc/effective_go.html#type_switch
+// Sample - Pointer can throw invalid indirect access. This is why.
+func IndirectAccess() (result string) {
+	// Predeclared type: Boolean, numeric, string.
+	// Create pointer, require * to access content because it's directly pointed by it.
+	var p_direct = new(int)
+	*p_direct = 8 //Point directly to content with *, direct access
+
+	// Named type follow the same rule with predeclared type
+	type Age int
+	var p_age = new(Age)
+	*p_age = 10 //Point directly to content with *, direct access
+
+
+	// Composite types : Maps, Slice, Struct. Content access is indirect.
+	// Create pointer to a composite type, acting itself like a pointer.
+	// Attempt to access content with * (eg: *p_struct) throw an invalid indirect access:
+	// Composite type have no data, but only pointer(s) to other type (named type, predeclared type or itself composite type).
+	// Always use indirect access capabilities to access
+	// members and methods, even when used in Pointer like bellow :
+	var p_struct = new(struct{
+		name string
+		age int
+	})
+	p_struct.name = "Ludo" // Here, age is initialized to 0. No need *
+
+	var p_array = new([3]string)
+	p_array[0] = "Hello"
+	p_array[1] = "The" // Index 2 is initialized to empty string (""). No need *
+
+
+	// Named type follow the same rule with composite type
+	type Name struct{firstname string; lastname string}
+	var p_name = new(Name)
+	p_name.firstname = "Ludo" //No need *
+
+
+	// ... And so forth for slice and maps. Keep this in mind.
+
+	result = fmt.Sprintf(
+		" Array (Join) -> %s \n Struct -> [%s - %d] \n int -> %d\n",
+		strings.Join(p_array[0:], " "),
+		p_struct.name, p_struct.age,
+		*p_direct,
+	)
+
+	// Here, we prove we have pointer :
+	ChangeStruct(p_struct)
+	ChangeArray(p_array)
+	ChangeInt(p_direct)
+
+	result = fmt.Sprintln(result, "---\n", fmt.Sprintf(
+			"Array (Join) -> %s \n Struct -> [%s - %d] \n int -> %d",
+			strings.Join(p_array[0:], " "),
+			p_struct.name, p_struct.age,
+			*p_direct,
+		),
+	)
+	return
+}
+
+// Used by sample Indirect Access. No need * to access content.
+func ChangeStruct(p *struct{name string; age int}) {
+	p.age = 18
+}
+
+// Used by sample Indirect Access. No need * to access content.
+func ChangeArray(p *[3]string) {
+	p[2] = "World !"
+}
+
+
+
+// Used by sample Indirect Access. Here, point directly to content with *
+func ChangeInt(p *int) {
+	*p = 8996
+}
+
 // See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
 
 func Show(result string) {
