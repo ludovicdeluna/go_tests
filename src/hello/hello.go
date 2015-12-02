@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 13
+	testCase := 14
 
 	switch testCase {
 	case 0:
@@ -42,6 +42,8 @@ func main() {
 		result = DuckTyping()
 	case 13:
 		result = IndirectAccess()
+	case 14:
+		BlockScope()
 	}
 
 	Show(result)
@@ -408,10 +410,11 @@ func IndirectAccess() (result string) {
 	*p_age = 10 //Point directly to content with *, direct access
 
 
-	// Composite types : Maps, Slice, Struct. Content access is indirect.
+	// Composite types : Maps, Slice, Struct, Interface, Channel: Content access is indirect.
 	// Create pointer to a composite type, acting itself like a pointer.
 	// Attempt to access content with * (eg: *p_struct) throw an invalid indirect access:
-	// Composite type have no data, but only pointer(s) to other type (named type, predeclared type or itself composite type).
+	// Composite type have no data, but only pointer(s) to other type (named type,
+	// predeclared type or itself composite type).
 	// Always use indirect access capabilities to access
 	// members and methods, even when used in Pointer like bellow :
 	var p_struct = new(struct{
@@ -465,11 +468,65 @@ func ChangeArray(p *[3]string) {
 	p[2] = "World !"
 }
 
-
-
 // Used by sample Indirect Access. Here, point directly to content with *
 func ChangeInt(p *int) {
 	*p = 8996
+}
+
+// Sample: Block and scopes
+func BlockScope(){
+
+	result := 0 // Here, result MUST BE an INTEGER !!! (See shadowing method)
+
+	fmt.Printf("My number is: %d\n", result)
+	{ // Context created with {} or block (like Java or C) :
+		// Variable created inside block exist only inside it.
+		// You can use any variable already created before your block (result here).
+		value, _ := strconv.Atoi("185")	// value is created here, scopped into this block.
+		result = value									// result existe before, so it's linked to it.
+		fmt.Printf("Local scopped value with simple block: %d (forget outside scope)\n", value)
+	}
+	fmt.Printf("Change number 1: %d\n", result)
+
+	// Same apply to if {}, for {}, func {}, etc... Here, sample with if {}
+	if value, err := strconv.Atoi("208"); err == nil {
+		fmt.Printf("Local scopped value with if block: %d (forget outside scope)\n", value)
+		result = result + value // We change the result again,
+	} else {									// but value and err will be lost outside this scope.
+		fmt.Println("This is not a value")
+	}
+	fmt.Printf("Change number 2: %d\n", result)
+
+
+
+	// Like C (and unlike local variable in Java), you have shadowing in Go.
+	// Use of shadow is natural, but be aware of this.
+	message := "Change number 3"
+	{
+		// We shadow external variables message and result. To keep access, use Pointer
+		p_int 	:= 	&result		// Local pointer to external variable 'result' (int)
+		value 	:= 	118				// Local
+		sum 		:= 	*p_int		// Local (copy content of pointer p_int)
+		message := 	fmt.Sprint(message, " (shadow method) : ")	// Shadowed.
+		result 	:= 	""																					// Shadowed.
+
+		// In this reusable code (sick !), we have already this code.
+		// We do not follow the previous types for the same names, they are shadowed.
+		sum = sum + value
+		result = fmt.Sprint(message, sum)
+		fmt.Println(result)
+
+		// Now, we update external value 'result' through Pointer p_int.
+		// Without that, somme will be lost. And result will never been updated.
+		*p_int = sum
+	}
+	// Outside this scope, we use our variable like we do before:
+	value := 810 // Here value is not already declared, thanks to scopes.
+	result = result + value 																					// result (int)
+	message = fmt.Sprintf("%s (outside scope) : %d", message, result) // Message (not modified before)
+	fmt.Println(message)
+
+	return
 }
 
 // See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
