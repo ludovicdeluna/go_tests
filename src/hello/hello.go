@@ -480,6 +480,8 @@ func ChangeInt(p *int) {
 func BlockScope() {
 
 	result := 0 // Here, result MUST BE an INTEGER !!! (See shadowing method)
+	var should_be int
+	should_be = should_be + 0
 
 	fmt.Printf("My number is: %d\n", result)
 	{ // Context created with {} or block (like Java or C) :
@@ -525,7 +527,42 @@ func BlockScope() {
 	value := 810                                                      // Here value is not already declared, thanks to scopes.
 	result = result + value                                           // result (int)
 	message = fmt.Sprintf("%s (outside scope) : %d", message, result) // Message (not modified before)
+	result = 10
+	value = 0
 	fmt.Println(message)
+
+	// Why shadow can be TRICKY ! Don't forget, any {} is scopped, even if{}, for{} and so forth.
+	// Look at this code. You have an error into, but nor the compiler nor you notice it.
+	// We have reseted before result to 10 and value to 0. Think we have complex calculs :)
+	if 0 <= value && value <= 150 {
+		should_be := ( (5 * 2 * 2) - 10 + 1 * ( value ) )
+		if should_be >= 10 {
+			// Now, it should be 11.
+			should_be++
+		} else {
+			// Never enter in this test. Normal.
+			should_be--
+		}
+	}
+	// Show the bad result ! Wich variable did you think we use in your overall if statment ?
+	fmt.Println(
+		"You result in this tricky exemple is wrong : Expected 11, but result is",
+		should_be,
+		// Why the result is 0 ??? Error is in the calcul ?
+		// This is the bad question. Question is : Why this is not a compil error.
+	)
+	// -> It's look like a beginner bug. Yes, it is. Variable should_be was declared
+	// a the start of this sample. Never used. And a newcomer in Go will write
+	// this code. Without an already declared should_be variable, this code
+	// produce a complil error on the Println (should_be not declared).
+	// But this is not the case, and our developper
+	// dive into calcul because he think error come from it.
+	// The reality, he use ":=" operator (line 2) that initate a new variable. Because
+	// we are in a scope (if {}), we shadow initial "should_be" variable with
+	// a new one and use it into the overall if statement. But this variable
+	// is lost outside the "if". And we fall in this case in our "just" initialized
+	// "should_be" variable as we have at the start: To 0. Funny, yah ?
+
 
 	return
 }
