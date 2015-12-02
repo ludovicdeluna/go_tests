@@ -279,7 +279,7 @@ func (dog *Dog) setAge(age int) int {
 // Interface that ensure methods definition. Used by Interfaces function.
 type Animal interface {
 	madeSound() string
-  setAge(newage int) int // Because setAge use pointer, any object of Animal MUST be a pointer.
+	setAge(newage int) int // Because setAge use pointer, any object of Animal MUST be a pointer.
 }
 
 // Named Type, used by Interfaces function: the T Cat
@@ -326,9 +326,9 @@ func TellWhatYouSpeak(any_animals ...Animal) string {
 }
 
 // Sample: Create setter by use pointer.
-func Setter() (result string){
+func Setter() (result string) {
 	dog := Dog{name: "SnoopyTheDog", age: 7}
-	if age := dog.setAge(55) ; age > 10 { // Test with block var into it
+	if age := dog.setAge(55); age > 10 { // Test with block var into it
 		result = fmt.Sprintf("Age supérieur à 10 : %d", age)
 	} else {
 		result = fmt.Sprintf("Age inchangé (echec) : %d", age)
@@ -365,12 +365,12 @@ func DuckTyping() string {
 }
 
 // Use empty interface to apply Duck Typing techniques
-func WhatIAm(something interface{}) (result string){
-	if animal, is_animal := something.(Animal) ; is_animal {
+func WhatIAm(something interface{}) (result string) {
+	if animal, is_animal := something.(Animal); is_animal {
 		return animal.madeSound()
 	}
 
-	switch identified_object := something.(type){
+	switch identified_object := something.(type) {
 	case Cat:
 		result = fmt.Sprintf("Ma couleur : %s", identified_object.color)
 	case string:
@@ -384,7 +384,7 @@ func WhatIAm(something interface{}) (result string){
 // Use empty interface to apply Duck Typing techniques on Pointer
 func ChangeMe(something interface{}) {
 
-	switch identified_object := something.(type){
+	switch identified_object := something.(type) {
 	case *Cat: // Test Nammed Type give access fields and methods
 		identified_object.color = "Black"
 	case Animal: // Test interface give only access to methods
@@ -409,7 +409,6 @@ func IndirectAccess() (result string) {
 	var p_age = new(Age)
 	*p_age = 10 //Point directly to content with *, direct access
 
-
 	// Composite types : Maps, Slice, Struct, Interface, Channel: Content access is indirect.
 	// Create pointer to a composite type, acting itself like a pointer.
 	// Attempt to access content with * (eg: *p_struct) throw an invalid indirect access:
@@ -417,9 +416,9 @@ func IndirectAccess() (result string) {
 	// predeclared type or itself composite type).
 	// Always use indirect access capabilities to access
 	// members and methods, even when used in Pointer like bellow :
-	var p_struct = new(struct{
+	var p_struct = new(struct {
 		name string
-		age int
+		age  int
 	})
 	p_struct.name = "Ludo" // Here, age is initialized to 0. No need *
 
@@ -427,12 +426,13 @@ func IndirectAccess() (result string) {
 	p_array[0] = "Hello"
 	p_array[1] = "The" // Index 2 is initialized to empty string (""). No need *
 
-
 	// Named type follow the same rule with composite type
-	type Name struct{firstname string; lastname string}
+	type Name struct {
+		firstname string
+		lastname  string
+	}
 	var p_name = new(Name)
 	p_name.firstname = "Ludo" //No need *
-
 
 	// ... And so forth for slice and maps. Keep this in mind.
 
@@ -449,17 +449,20 @@ func IndirectAccess() (result string) {
 	ChangeInt(p_direct)
 
 	result = fmt.Sprintln(result, "---\n", fmt.Sprintf(
-			"Array (Join) -> %s \n Struct -> [%s - %d] \n int -> %d",
-			strings.Join(p_array[0:], " "),
-			p_struct.name, p_struct.age,
-			*p_direct,
-		),
+		"Array (Join) -> %s \n Struct -> [%s - %d] \n int -> %d",
+		strings.Join(p_array[0:], " "),
+		p_struct.name, p_struct.age,
+		*p_direct,
+	),
 	)
 	return
 }
 
 // Used by sample Indirect Access. No need * to access content.
-func ChangeStruct(p *struct{name string; age int}) {
+func ChangeStruct(p *struct {
+	name string
+	age  int
+}) {
 	p.age = 18
 }
 
@@ -474,7 +477,7 @@ func ChangeInt(p *int) {
 }
 
 // Sample: Block and scopes
-func BlockScope(){
+func BlockScope() {
 
 	result := 0 // Here, result MUST BE an INTEGER !!! (See shadowing method)
 
@@ -482,8 +485,8 @@ func BlockScope(){
 	{ // Context created with {} or block (like Java or C) :
 		// Variable created inside block exist only inside it.
 		// You can use any variable already created before your block (result here).
-		value, _ := strconv.Atoi("185")	// value is created here, scopped into this block.
-		result = value									// result existe before, so it's linked to it.
+		value, _ := strconv.Atoi("185") // value is created here, scopped into this block.
+		result = value                  // result existe before, so it's linked to it.
 		fmt.Printf("Local scopped value with simple block: %d (forget outside scope)\n", value)
 	}
 	fmt.Printf("Change number 1: %d\n", result)
@@ -492,23 +495,21 @@ func BlockScope(){
 	if value, err := strconv.Atoi("208"); err == nil {
 		fmt.Printf("Local scopped value with if block: %d (forget outside scope)\n", value)
 		result = result + value // We change the result again,
-	} else {									// but value and err will be lost outside this scope.
+	} else { // but value and err will be lost outside this scope.
 		fmt.Println("This is not a value")
 	}
 	fmt.Printf("Change number 2: %d\n", result)
-
-
 
 	// Like C (and unlike local variable in Java), you have shadowing in Go.
 	// Use of shadow is natural, but be aware of this.
 	message := "Change number 3"
 	{
 		// We shadow external variables message and result. To keep access, use Pointer
-		p_int 	:= 	&result		// Local pointer to external variable 'result' (int)
-		value 	:= 	118				// Local
-		sum 		:= 	*p_int		// Local (copy content of pointer p_int)
-		message := 	fmt.Sprint(message, " (shadow method) : ")	// Shadowed.
-		result 	:= 	""																					// Shadowed.
+		p_int := &result                                      // Local pointer to external variable 'result' (int)
+		value := 118                                          // Local
+		sum := *p_int                                         // Local (copy content of pointer p_int)
+		message := fmt.Sprint(message, " (shadow method) : ") // Shadowed.
+		result := ""                                          // Shadowed.
 
 		// In this reusable code (sick !), we have already this code.
 		// We do not follow the previous types for the same names, they are shadowed.
@@ -521,8 +522,8 @@ func BlockScope(){
 		*p_int = sum
 	}
 	// Outside this scope, we use our variable like we do before:
-	value := 810 // Here value is not already declared, thanks to scopes.
-	result = result + value 																					// result (int)
+	value := 810                                                      // Here value is not already declared, thanks to scopes.
+	result = result + value                                           // result (int)
 	message = fmt.Sprintf("%s (outside scope) : %d", message, result) // Message (not modified before)
 	fmt.Println(message)
 
