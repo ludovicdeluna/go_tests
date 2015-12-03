@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 14
+	testCase := 15
 
 	switch testCase {
 	case 0:
@@ -44,6 +44,8 @@ func main() {
 		result = IndirectAccess()
 	case 14:
 		BlockScope()
+	case 15:
+		result = EmbeddedType()
 	}
 
 	Show(result)
@@ -563,6 +565,50 @@ func BlockScope() {
 	// is lost outside the "if". And we fall in this case in our "just" initialized
 	// "should_be" variable as we have at the start: To 0. Funny, yah ?
 
+
+	return
+}
+
+// Sample : Embedded Type into other Type
+func EmbeddedType() (result string){
+	type Human struct{
+		age int
+		color string
+	}
+
+	type Worker struct{Human; name string} // Embbed Human at the root
+	georges := Worker{Human: Human{age: 18, color: "white"}, name: "Georges"}
+
+	result = fmt.Sprintf(
+		"As a Worker: I'm %s, a'm %d years old and my color is %s\n",
+		georges.name,
+		georges.age,
+		georges.color,
+	)
+
+
+	// Shadow color. No ambiguities when initialized
+	type Cyborg struct{Human; name string; color int} // Embbed Human at the root
+	machine := Cyborg{Human: Human{age: 3}, name: "Machine", color: 4485}
+
+	// But when used, you get accessor of Cyborg (int), not Human (string)
+	result += fmt.Sprintf(
+		"As a Cyborg: I'm %s, a'm %d years old and my color reference is %d\n",
+		machine.name,
+		machine.age,
+		machine.color,
+	)
+
+
+	type Driver struct{race Human; name string} // Embbed Human into race accessor
+	mickael := Driver{race: Human{age: 32, color: "black"}, name: "Mickael"}
+
+	result += fmt.Sprintf(
+		"As a Driver: I'm %s, a'm %d years old and my color is %s\n",
+		mickael.name,
+		mickael.race.age,
+		mickael.race.color,
+	)
 
 	return
 }
