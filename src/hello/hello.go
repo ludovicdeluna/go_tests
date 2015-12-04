@@ -7,11 +7,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"reflect"
 )
 
 func main() {
 	var result string
-	testCase := 15
+	testCase := 16
 
 	switch testCase {
 	case 0:
@@ -46,6 +47,8 @@ func main() {
 		BlockScope()
 	case 15:
 		result = EmbeddedType()
+	case 16:
+		result = ErrorGenerator()
 	}
 
 	Show(result)
@@ -143,7 +146,8 @@ func Pointers() string {
 	// Thanks to GC, Go has no Arithmetic Pointer
 	var variable int
 	var pointer = new(int)          // Our pointer
-	var results = make([]string, 9) // Slice of 9 empty string
+	var results = make([]string, 9) // Slice of 9 empty string, return it's reference
+	// reference is like a pointer, but the address is hidden
 
 	variable = 255
 	*pointer = 10 // *pointer to act on its content and not on pointer itself
@@ -613,7 +617,46 @@ func EmbeddedType() (result string){
 	return
 }
 
-// See also: https://www.golang-book.com/books/intro/9 -> Embedded Types with P
+// Use by ErrorGenerator: Custom Type to handle Error.
+type cnxError struct {
+	error, // Embed type: Predeclared interface in the universe package.
+	message string
+	code int
+}
+
+// Use by ErrorGenerator: Error method required by the interface "error".
+func(e cnxError) Error() string {
+	// When you want a printable version, Error() is called for any object
+	// of error interface or wich embed it.
+	return fmt.Sprintf("You got an error (%d): %s", e.code, e.message)
+}
+
+// Use by ErrorGenerator: Factory to build cnxError objects. Not required.
+func CnxError(message string, code int) *cnxError {
+	return &cnxError{message: message, code: code} // return reference, not a copie
+}
+
+// Sample ErrorGenerator
+func ErrorGenerator() (result string) {
+	// Not required. To show type returned
+	show_me := func(object interface{}) string {
+		return fmt.Sprintf("Type retourné : %s\n", reflect.TypeOf(object))
+	}
+
+	// By using custom type wich implement interface 'error'
+	err := CnxError("Pas de connexion", 500)
+	result += fmt.Sprintln(err) // -> You got an error (500): Pas de connexion
+	result += fmt.Sprintf("Code de l'erreur : %d\n", err.code)
+	result += show_me(err)
+
+	// Same, but without encapsulation / not DRY
+	err_with_fmt := fmt.Errorf("You got an error (%d): %s", 404, "Access denied")
+	result += fmt.Sprintln(err_with_fmt)
+	result += fmt.Sprintln("Code de l'erreur : Il faut parser le texte !!!")
+	result += show_me(err_with_fmt)
+
+	return
+}
 
 func Show(result string) {
 	if len(result) == 0 {
