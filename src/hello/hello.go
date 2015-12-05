@@ -12,7 +12,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 16
+	testCase := 17
 
 	switch testCase {
 	case 0:
@@ -49,6 +49,8 @@ func main() {
 		result = EmbeddedType()
 	case 16:
 		result = ErrorGenerator()
+	case 17:
+		PlayPointers()
 	}
 
 	Show(result)
@@ -656,6 +658,161 @@ func ErrorGenerator() (result string) {
 	result += show_me(err_with_fmt)
 
 	return
+}
+
+// Sample PlayPointers
+func PlayPointers() {
+
+	// Not required. Show if we access to content, a pointer to follow or redirected from reference
+	deref := func(ref interface{}) string {
+		// If need check type:
+		// fmt.Println(reflect.TypeOf(ref))
+		// ---
+		// Notice because this function pass always a reference of a reference through interface (x2)
+		// (To understanding the chain of call : show(&ref as interface) and deref(&&ref as interface))
+		// In normal usage, when you have **, you access with *
+		// and when you have * you acces without *
+		// ---
+		// Don't dive in this code, please. Not useful to begin.
+		switch identified_object := ref.(type) {
+		case **int: // Reference (&) to a pointer . Double **
+			return fmt.Sprint("Follow pointer : ", **identified_object)
+		case *int: // Reference (&) to an value. Simple *
+			return fmt.Sprint("Open content : ", *identified_object)
+		case **struct{name string ; age int}:
+			return fmt.Sprint("Follow reference : ", **identified_object)
+		case *struct{name string ; age int}:
+			return fmt.Sprint("Open content : ", *identified_object)
+		case *[2]string:
+			return fmt.Sprint("Open content : ", *identified_object)
+		case **[2]string:
+			return fmt.Sprint("Follow reference : ", **identified_object)
+		default:
+			return "No value"
+		}
+
+	}
+
+	// This function show the address of each object and it's content (value,
+	// memory pointer address or followed reference)
+	// ---
+	// Don't dive in this code, please. Not useful to begin.
+	show := func(desc string, name string, obj interface{}, ref interface{}) {
+		var message string
+		message = "-- %s:\n   %s -> %s: (address: %p ; content: %v) ; Value : %s\n"
+		var dereferenced = deref(ref)
+		fmt.Printf(message, desc, name, reflect.TypeOf(obj), ref, obj, dereferenced)
+	}
+
+	// Now, the TRUE sample ! Yah !
+
+
+	// No composite variable use classic Pointers
+	var number int
+	number = 1
+	show("var number int ; number = 1","number", number, &number)
+
+	var p1_number = new(int)
+	p1_number = &number
+	show("p1_number = &number", "p1_number", p1_number, &p1_number)
+
+	p2_number := &number
+	show("p2_number := &number (Type inference)", "p2_number", p2_number, &p2_number)
+
+	*p2_number = 859
+	show("*p2_number = 859", "p2_number", p2_number, &p2_number)
+	show("Check p1_number", "p1_number", p1_number, &p1_number)
+	show("Check number","number", number, &number)
+
+	// Pointer is just that : A variable wich point to memory address.
+	// To use dereference (*), pointer must have a type wich correspond
+	// to the type of data pointer by it.
+	//
+	// Attempt to change memory adresse to point to another type of object
+	//   temp_string := "Une chaine"
+	//   p1_number = &temp_string
+	// Error -> cannot use &temp_string (type *string) as type *int in assignment
+
+
+	// Composite variable always use reference. Content is not an address but a
+	// direct (and silent) reference to another variable's content. Never access it
+	// with *
+	stu := struct{name string ; age int}{"ludo", 18}
+	show("stu := struct{name string ; age int}{\"ludo\", 18}", "stu", stu, &stu)
+
+	p1_stu := &stu
+	show("p1_stu := &stu (Type inference)", "p1_stu", p1_stu, &p1_stu)
+
+	var p2_stu = new(struct{name string ; age int})
+	p2_stu = &stu
+	show("var p2_stu = new(struct{name string ; age int}) ; p2_stu = &stu", "p1_stu", p2_stu, &p2_stu)
+
+	p1_stu.name = "paul"
+	p1_stu.age = 25
+	show("p1_stu.name = \"paul\" ; p1_stu.age = 25 ", "p1_stu", p1_stu, &p1_stu)
+	show("Check p2_stu", "p2_stu", p2_stu, &p2_stu)
+	show("Check stu", "stu", stu, &stu)
+
+	arr := [2]string{"Valeur 1", "Valeur 2"}
+	show("arr := [2]string{\"Valeur 1\", \"Valeur 2\"}","arr", arr, &arr)
+
+	p1_arr := &arr
+	show("p1_arr := &arr (Type inference)","p1_arr", p1_arr, &p1_arr)
+
+	p1_arr[0] = "Nouvelle valeur"
+	show("p1_arr[0] = \"Nouvelle valeur\"","p1_arr", p1_arr, &p1_arr)
+	show("Check arr","arr", arr, &arr)
+
+	// Reference is like a pointer, but at object level.
+	// He shadow variable attributes and content with the object linked with.
+	// No need of dereference a reference, it's already dereferenced !
+	// Like pointer, a variable that hold a reference is also typed.
+	// You can change reference, but not the type reference by it.
+	// Only for composite object : func(p), array[...], slice[], struct{}, interface{}, nammed type
+	//
+	// Attempt to change link, we reference another type of object
+	//  temp_struct := struct{coef int ; lat int}{8, 9}
+	//  p1_arr = &temp_struct // Error -> cannot use &temp_struct (type *struct { coef int; lat int }) as type *[2]string
+
+	/*
+	 * Complete output
+	 *
+	 -- var number int ; number = 1:
+	    number -> int: (address: 0xc82000a380 ; content: 1) ; Value : Open content : 1
+	 -- var p1_number = new(int) ; p1_number = &number:
+	    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 1
+	 -- p2_number := &number (Type inference):
+	    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 1
+	 -- *p2_number = 859:
+	    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 859
+	 -- Check p1_number:
+	    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 859
+	 -- Check number:
+	    number -> int: (address: 0xc82000a380 ; content: 859) ; Value : Open content : 859
+	 -- stu := struct{name string ; age int}{"ludo", 18}:
+	    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {ludo 18}) ; Value : Open content : {ludo 18}
+	 -- p1_stu := &stu (Type inference):
+	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
+	 -- var p2_stu = new(struct{name string ; age int}) ; p2_stu = &stu:
+	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
+	 -- p1_stu.name = "paul" ; p1_stu.age = 25 :
+	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
+	 -- Check p2_stu:
+	    p2_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
+	 -- Check stu:
+	    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {paul 25}) ; Value : Open content : {paul 25}
+	 -- arr := [2]string{"Valeur 1", "Valeur 2"}:
+	    arr -> [2]string: (address: 0xc82000e900 ; content: [Valeur 1 Valeur 2]) ; Value : Open content : [Valeur 1 Valeur 2]
+	 -- p1_arr := &arr (Type inference):
+	    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Valeur 1 Valeur 2]) ; Value : Follow reference : [Valeur 1 Valeur 2]
+	 -- p1_arr[0] = "Nouvelle valeur":
+	    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Nouvelle valeur Valeur 2]) ; Value : Follow reference : [Nouvelle valeur Valeur 2]
+	 -- Check arr:
+	    arr -> [2]string: (address: 0xc82000e900 ; content: [Nouvelle valeur Valeur 2]) ; Value : Open content : [Nouvelle valeur Valeur 2]
+	*
+	*
+	*/
+
 }
 
 func Show(result string) {
