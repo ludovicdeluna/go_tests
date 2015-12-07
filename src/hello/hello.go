@@ -3,11 +3,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/ludovic/stringutil"
+	"ludovic/stringutil"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
-	"reflect"
 )
 
 func main() {
@@ -543,7 +543,7 @@ func BlockScope() {
 	// Look at this code. You have an error into, but nor the compiler nor you notice it.
 	// We have reseted before result to 10 and value to 0. Think we have complex calculs :)
 	if 0 <= value && value <= 150 {
-		should_be := ( (5 * 2 * 2) - 10 + 1 * ( value ) )
+		should_be := ((5 * 2 * 2) - 10 + 1*(value))
 		if should_be >= 10 {
 			// Now, it should be 11.
 			should_be++
@@ -571,18 +571,21 @@ func BlockScope() {
 	// is lost outside the "if". And we fall in this case in our "just" initialized
 	// "should_be" variable as we have at the start: To 0. Funny, yah ?
 
-
 	return
 }
 
 // Sample : Embedded Type into other Type
-func EmbeddedType() (result string){
-	type Human struct{
-		age int
+func EmbeddedType() (result string) {
+	type Human struct {
+		age   int
 		color string
 	}
 
-	type Worker struct{Human; name string} // Embbed Human at the root
+	// Embbed Human at the root
+	type Worker struct {
+		Human
+		name string
+	}
 	georges := Worker{Human: Human{age: 18, color: "white"}, name: "Georges"}
 
 	result = fmt.Sprintf(
@@ -592,9 +595,12 @@ func EmbeddedType() (result string){
 		georges.color,
 	)
 
-
-	// Shadow color. No ambiguities when initialized
-	type Cyborg struct{Human; name string; color int} // Embbed Human at the root
+	// Shadow color. No ambiguities when initialized. Embbed Human at the root
+	type Cyborg struct {
+		Human
+		name  string
+		color int
+	}
 	machine := Cyborg{Human: Human{age: 3}, name: "Machine", color: 4485}
 
 	// But when used, you get accessor of Cyborg (int), not Human (string)
@@ -605,8 +611,11 @@ func EmbeddedType() (result string){
 		machine.color,
 	)
 
-
-	type Driver struct{race Human; name string} // Embbed Human into race accessor
+	// Embbed Human into race accessor
+	type Driver struct {
+		race Human
+		name string
+	}
 	mickael := Driver{race: Human{age: 32, color: "black"}, name: "Mickael"}
 
 	result += fmt.Sprintf(
@@ -627,7 +636,7 @@ type cnxError struct {
 }
 
 // Use by ErrorGenerator: Error method required by the interface "error".
-func(e cnxError) Error() string {
+func (e cnxError) Error() string {
 	// When you want a printable version, Error() is called for any object
 	// of error interface or wich embed it.
 	return fmt.Sprintf("You got an error (%d): %s", e.code, e.message)
@@ -679,9 +688,9 @@ func PlayPointers() {
 			return fmt.Sprint("Follow pointer : ", **identified_object)
 		case *int: // Reference (&) to an value. Simple *
 			return fmt.Sprint("Open content : ", *identified_object)
-		case **struct{name string ; age int}:
+		case **struct {name string ; age  int}:
 			return fmt.Sprint("Follow reference : ", **identified_object)
-		case *struct{name string ; age int}:
+		case *struct {name string ; age  int}:
 			return fmt.Sprint("Open content : ", *identified_object)
 		case *[2]string:
 			return fmt.Sprint("Open content : ", *identified_object)
@@ -706,11 +715,10 @@ func PlayPointers() {
 
 	// Now, the TRUE sample ! Yah !
 
-
 	// No composite variable use classic Pointers
 	var number int
 	number = 1
-	show("var number int ; number = 1","number", number, &number)
+	show("var number int ; number = 1", "number", number, &number)
 
 	var p1_number = new(int)
 	p1_number = &number
@@ -722,7 +730,7 @@ func PlayPointers() {
 	*p2_number = 859
 	show("*p2_number = 859", "p2_number", p2_number, &p2_number)
 	show("Check p1_number", "p1_number", p1_number, &p1_number)
-	show("Check number","number", number, &number)
+	show("Check number", "number", number, &number)
 
 	// Pointer is just that : A variable wich point to memory address.
 	// To use dereference (*), pointer must have a type wich correspond
@@ -733,17 +741,22 @@ func PlayPointers() {
 	//   p1_number = &temp_string
 	// Error -> cannot use &temp_string (type *string) as type *int in assignment
 
-
 	// Composite variable always use reference. Content is not an address but a
 	// direct (and silent) reference to another variable's content. Never access it
 	// with *
-	stu := struct{name string ; age int}{"ludo", 18}
+	stu := struct {
+		name string
+		age  int
+	}{"ludo", 18}
 	show("stu := struct{name string ; age int}{\"ludo\", 18}", "stu", stu, &stu)
 
 	p1_stu := &stu
 	show("p1_stu := &stu (Type inference)", "p1_stu", p1_stu, &p1_stu)
 
-	var p2_stu = new(struct{name string ; age int})
+	var p2_stu = new(struct {
+		name string
+		age  int
+	})
 	p2_stu = &stu
 	show("var p2_stu = new(struct{name string ; age int}) ; p2_stu = &stu", "p1_stu", p2_stu, &p2_stu)
 
@@ -754,14 +767,14 @@ func PlayPointers() {
 	show("Check stu", "stu", stu, &stu)
 
 	arr := [2]string{"Valeur 1", "Valeur 2"}
-	show("arr := [2]string{\"Valeur 1\", \"Valeur 2\"}","arr", arr, &arr)
+	show("arr := [2]string{\"Valeur 1\", \"Valeur 2\"}", "arr", arr, &arr)
 
 	p1_arr := &arr
-	show("p1_arr := &arr (Type inference)","p1_arr", p1_arr, &p1_arr)
+	show("p1_arr := &arr (Type inference)", "p1_arr", p1_arr, &p1_arr)
 
 	p1_arr[0] = "Nouvelle valeur"
-	show("p1_arr[0] = \"Nouvelle valeur\"","p1_arr", p1_arr, &p1_arr)
-	show("Check arr","arr", arr, &arr)
+	show("p1_arr[0] = \"Nouvelle valeur\"", "p1_arr", p1_arr, &p1_arr)
+	show("Check arr", "arr", arr, &arr)
 
 	// Reference is like a pointer, but at object level.
 	// He shadow variable attributes and content with the object linked with.
@@ -775,42 +788,42 @@ func PlayPointers() {
 	//  p1_arr = &temp_struct // Error -> cannot use &temp_struct (type *struct { coef int; lat int }) as type *[2]string
 
 	/*
-	 * Complete output
-	 *
-	 -- var number int ; number = 1:
-	    number -> int: (address: 0xc82000a380 ; content: 1) ; Value : Open content : 1
-	 -- var p1_number = new(int) ; p1_number = &number:
-	    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 1
-	 -- p2_number := &number (Type inference):
-	    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 1
-	 -- *p2_number = 859:
-	    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 859
-	 -- Check p1_number:
-	    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 859
-	 -- Check number:
-	    number -> int: (address: 0xc82000a380 ; content: 859) ; Value : Open content : 859
-	 -- stu := struct{name string ; age int}{"ludo", 18}:
-	    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {ludo 18}) ; Value : Open content : {ludo 18}
-	 -- p1_stu := &stu (Type inference):
-	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
-	 -- var p2_stu = new(struct{name string ; age int}) ; p2_stu = &stu:
-	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
-	 -- p1_stu.name = "paul" ; p1_stu.age = 25 :
-	    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
-	 -- Check p2_stu:
-	    p2_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
-	 -- Check stu:
-	    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {paul 25}) ; Value : Open content : {paul 25}
-	 -- arr := [2]string{"Valeur 1", "Valeur 2"}:
-	    arr -> [2]string: (address: 0xc82000e900 ; content: [Valeur 1 Valeur 2]) ; Value : Open content : [Valeur 1 Valeur 2]
-	 -- p1_arr := &arr (Type inference):
-	    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Valeur 1 Valeur 2]) ; Value : Follow reference : [Valeur 1 Valeur 2]
-	 -- p1_arr[0] = "Nouvelle valeur":
-	    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Nouvelle valeur Valeur 2]) ; Value : Follow reference : [Nouvelle valeur Valeur 2]
-	 -- Check arr:
-	    arr -> [2]string: (address: 0xc82000e900 ; content: [Nouvelle valeur Valeur 2]) ; Value : Open content : [Nouvelle valeur Valeur 2]
-	*
-	*
+		 * Complete output
+		 *
+		 -- var number int ; number = 1:
+		    number -> int: (address: 0xc82000a380 ; content: 1) ; Value : Open content : 1
+		 -- var p1_number = new(int) ; p1_number = &number:
+		    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 1
+		 -- p2_number := &number (Type inference):
+		    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 1
+		 -- *p2_number = 859:
+		    p2_number -> *int: (address: 0xc82002e030 ; content: 0xc82000a380) ; Value : Follow pointer : 859
+		 -- Check p1_number:
+		    p1_number -> *int: (address: 0xc82002e028 ; content: 0xc82000a380) ; Value : Follow pointer : 859
+		 -- Check number:
+		    number -> int: (address: 0xc82000a380 ; content: 859) ; Value : Open content : 859
+		 -- stu := struct{name string ; age int}{"ludo", 18}:
+		    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {ludo 18}) ; Value : Open content : {ludo 18}
+		 -- p1_stu := &stu (Type inference):
+		    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
+		 -- var p2_stu = new(struct{name string ; age int}) ; p2_stu = &stu:
+		    p1_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{ludo 18}) ; Value : Follow reference : {ludo 18}
+		 -- p1_stu.name = "paul" ; p1_stu.age = 25 :
+		    p1_stu -> *struct { name string; age int }: (address: 0xc82002e038 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
+		 -- Check p2_stu:
+		    p2_stu -> *struct { name string; age int }: (address: 0xc82002e040 ; content: &{paul 25}) ; Value : Follow reference : {paul 25}
+		 -- Check stu:
+		    stu -> struct { name string; age int }: (address: 0xc82000e680 ; content: {paul 25}) ; Value : Open content : {paul 25}
+		 -- arr := [2]string{"Valeur 1", "Valeur 2"}:
+		    arr -> [2]string: (address: 0xc82000e900 ; content: [Valeur 1 Valeur 2]) ; Value : Open content : [Valeur 1 Valeur 2]
+		 -- p1_arr := &arr (Type inference):
+		    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Valeur 1 Valeur 2]) ; Value : Follow reference : [Valeur 1 Valeur 2]
+		 -- p1_arr[0] = "Nouvelle valeur":
+		    p1_arr -> *[2]string: (address: 0xc82002e048 ; content: &[Nouvelle valeur Valeur 2]) ; Value : Follow reference : [Nouvelle valeur Valeur 2]
+		 -- Check arr:
+		    arr -> [2]string: (address: 0xc82000e900 ; content: [Nouvelle valeur Valeur 2]) ; Value : Open content : [Nouvelle valeur Valeur 2]
+		*
+		*
 	*/
 
 }

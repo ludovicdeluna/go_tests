@@ -1,0 +1,24 @@
+go_version: 1.5
+go_standard: 1.0 - Google
+github.com/ludovicdeluna/stringutil:
+  author: ludovic(ludovic@deluna.fr)
+  license: GPL
+  link: none
+  version:
+    fetch: https://git@github.com/ludovicdeluna/stringutil.git
+    branch: master
+    file: VERSION
+  history:
+    1.4:
+      url: https://git@github.com/ludovicdeluna/stringutil.git
+      tag: 1.4
+    1.3:
+      url: https://git@github.com/ludovicdeluna/stringutil.git
+      tag: 1.3.4
+      break: 1.2
+    1.2:
+      url: https://git@github.com/ludovicdeluna/stringutil.git
+      tag: 1.2.0
+    1.0:
+      url: https://git@github.com/ludovicdeluna/toolstring.git
+      tag: 1.0.5-beta

@@ -2,7 +2,11 @@
 #current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 root_dir:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ROOTPATH=$(root_dir)
-GOPATH:=$(ROOTPATH):$(ROOTPATH)/vendor
+#Before Go1.5, I prefer keep a vendor path.
+# GOPATH:=$(ROOTPATH):$(ROOTPATH)/vendor
+GOPATH:=$(ROOTPATH)
+#But now, it's really more useful. Always use vendor feature since Go1.5 :
+export GO15VENDOREXPERIMENT=1
 
 all: install
 
@@ -19,7 +23,6 @@ test: version
 
 clean:
 	rm -rf $(ROOTPATH)/pkg
-	rm -rf $(ROOTPATH)/vendor/pkg
 
 reset: clean
 	rm -rf $(ROOTPATH)/bin
