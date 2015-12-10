@@ -16,7 +16,7 @@ version:
 	@go version
 
 install: version
-	go install hello
+	go install hello pointref
 
 test: version
 	go test ./...
