@@ -12,7 +12,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 17
+	testCase := 18
 
 	switch testCase {
 	case 0:
@@ -51,6 +51,8 @@ func main() {
 		result = ErrorGenerator()
 	case 17:
 		PlayPointers()
+	case 18:
+		shrinkASlice()
 	}
 
 	Show(result)
@@ -826,6 +828,16 @@ func PlayPointers() {
 		*
 	*/
 
+}
+
+func shrinkASlice() {
+	slice := []int {1, 2, 3}
+	slice = append(slice, 4, 5, 6)
+	fmt.Printf("slice (cap: %d, len: %d) -> %#v\n", len(slice), cap(slice), slice)
+
+	shrinkedSlice := make([]int, len(slice) - 1)
+	copy(shrinkedSlice, slice[1:])
+	fmt.Printf("shrinkedSlice (cap: %d, len: %d) -> %#v\n", len(shrinkedSlice), cap(shrinkedSlice), shrinkedSlice)
 }
 
 func Show(result string) {
