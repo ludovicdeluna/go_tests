@@ -12,7 +12,7 @@ import (
 
 func main() {
 	var result string
-	testCase := 18
+	testCase := 19
 
 	switch testCase {
 	case 0:
@@ -52,7 +52,9 @@ func main() {
 	case 17:
 		PlayPointers()
 	case 18:
-		shrinkASlice()
+		ShrinkASlice()
+	case 19:
+		result = QuickTypeTest()
 	}
 
 	Show(result)
@@ -830,7 +832,7 @@ func PlayPointers() {
 
 }
 
-func shrinkASlice() {
+func ShrinkASlice() {
 	slice := []int {1, 2, 3}
 	slice = append(slice, 4, 5, 6)
 	fmt.Printf("slice (cap: %d, len: %d) -> %#v\n", len(slice), cap(slice), slice)
@@ -838,6 +840,22 @@ func shrinkASlice() {
 	shrinkedSlice := make([]int, len(slice) - 1)
 	copy(shrinkedSlice, slice[1:])
 	fmt.Printf("shrinkedSlice (cap: %d, len: %d) -> %#v\n", len(shrinkedSlice), cap(shrinkedSlice), shrinkedSlice)
+}
+
+func QuickTypeTest() (result string) {
+	dog := Dog{name: "Doggy", age: 12}
+	result = QuickTestDog(dog)
+	cat := Cat{name: "A cat"}
+	result += "\n" + QuickTestDog(cat)
+	return
+}
+
+func QuickTestDog(something interface{}) string {
+	if dog, ok := something.(Dog) ; ok {
+		return fmt.Sprintf("Hello dog %s !", dog.name)
+	} else {
+		return fmt.Sprintf("Please, get me dog !")
+	}
 }
 
 func Show(result string) {
