@@ -1,33 +1,54 @@
-#mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-#current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
-root_dir:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-ROOTPATH=$(root_dir)
-#Before Go1.5, I prefer keep a vendor path.
-# GOPATH:=$(ROOTPATH):$(ROOTPATH)/vendor
-GOPATH:=$(ROOTPATH)
-#But now, it's really more useful. Always use vendor feature since Go1.5 :
+SRC_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT_DIR:=$(shell dirname $(SRC_DIR))
+GOPATH:=$(ROOT_DIR)
 export GO15VENDOREXPERIMENT=1
 
-all: install
+all: install clean end_msg
 
-version:
-	@export GOPATH
-	@echo "GOPATH = $$GOPATH\n"
+run: run_hello end_msg
+
+test: test_all end_msg
+
+check_src:
+ifneq ("$(notdir $(SRC_DIR))","src")
+	$(error Move content of this folder into $(notdir $(SRC_DIR))/src)
+endif
+
+version: check_src
+	clear
+	@echo "-- Projet $(notdir $(ROOT_DIR)) --"
+	@echo "GOPATH: $$GOPATH"
+	@echo "src   : $(SRC_DIR)"
+	@echo "pkg   : $(ROOT_DIR)/pkg"
+	@echo "bin   : $(ROOT_DIR)/bin"
+	@echo "\n-- Runtime --"
+	@echo "Required Go 1.5+"
+	@echo "Vendor enabled : GO15VENDOREXPERIMENT=$$GO15VENDOREXPERIMENT"
 	@go version
+	@echo
 
 install: version
+	@echo "-- Build and Install --"
 	go install hello pointref
+	@echo
 
-test: version
+test_all: version
 	go test ./...
 
-clean:
-	rm -rf $(ROOTPATH)/pkg
+clean_msg: check_src
+	@echo "-- Clean temporary objects --"
+
+clean: clean_msg
+	@echo "pkg objects"
+	@rm -rf $(ROOT_DIR)/pkg
 
 reset: clean
-	rm -rf $(ROOTPATH)/bin
+	@echo "binary"
+	@rm -rf $(ROOT_DIR)/bin
 
-run: install
-	@echo '-----------'
-	@echo 'run hello :'
-	@$(ROOTPATH)/bin/hello $(ARGS)
+end_msg:
+	@echo "\nTerminated."
+
+run_hello: install
+	@echo "-- Run command hello (hello.go) --"
+	@$(ROOT_DIR)/bin/hello $(ARGS)
