@@ -1,4 +1,7 @@
-// https://golang.org/doc/code.html
+// +build go1.5
+// This package need vendoring activated. The build will be ignored by
+// go install or go build, thanks to build tag at line 1
+// See: https://golang.org/pkg/go/build/
 package main
 
 import (
@@ -692,9 +695,15 @@ func PlayPointers() {
 			return fmt.Sprint("Follow pointer : ", **identified_object)
 		case *int: // Reference (&) to an value. Simple *
 			return fmt.Sprint("Open content : ", *identified_object)
-		case **struct {name string ; age  int}:
+		case **struct {
+			name string
+			age  int
+		}:
 			return fmt.Sprint("Follow reference : ", **identified_object)
-		case *struct {name string ; age  int}:
+		case *struct {
+			name string
+			age  int
+		}:
 			return fmt.Sprint("Open content : ", *identified_object)
 		case *[2]string:
 			return fmt.Sprint("Open content : ", *identified_object)
@@ -833,11 +842,11 @@ func PlayPointers() {
 }
 
 func ShrinkASlice() {
-	slice := []int {1, 2, 3}
+	slice := []int{1, 2, 3}
 	slice = append(slice, 4, 5, 6)
 	fmt.Printf("slice (cap: %d, len: %d) -> %#v\n", len(slice), cap(slice), slice)
 
-	shrinkedSlice := make([]int, len(slice) - 1)
+	shrinkedSlice := make([]int, len(slice)-1)
 	copy(shrinkedSlice, slice[1:])
 	fmt.Printf("shrinkedSlice (cap: %d, len: %d) -> %#v\n", len(shrinkedSlice), cap(shrinkedSlice), shrinkedSlice)
 }
@@ -851,7 +860,7 @@ func QuickTypeTest() (result string) {
 }
 
 func QuickTestDog(something interface{}) string {
-	if dog, ok := something.(Dog) ; ok {
+	if dog, ok := something.(Dog); ok {
 		return fmt.Sprintf("Hello dog %s !", dog.name)
 	} else {
 		return fmt.Sprintf("Please, get me dog !")

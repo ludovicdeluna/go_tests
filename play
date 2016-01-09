@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+clear
+
+if [ "$1" == "-d" ] && [ -f "playground.sav" ]; then
+  echo "Old work deleted"
+  rm playground.sav
+fi
+
+if [ -f "playground.sav" ]; then
+  response="-"
+  while [ ! $response == "y" ] && [ ! $response == "n" ]; do
+    read -n1 -p "Restaure your last work (y/n): " response
+    if [ $response == "y" ]; then
+      cp playground.sav playground.go
+    elif [ $response == "n" ]; then
+      cp playground.src playground.go
+      echo
+      echo "(run play command with -d option to delete you last work)"
+    fi
+  done
+  echo
+else
+  cp playground.src playground.go
+fi
+
+cp playground.go playground.old
+response=""
+OUT=0
+
+while [[ -z $response ]] || [ $response == "r" ] || [ $response == "b" ] || [ $response == "e" ] || [ $response == "s" ]; do
+  read -n1 -p "Do (r)un* (q)uit (e)dit (s)how (b)acked: " response
+  echo
+  if [[ -z $response ]]; then
+    read -p "Parameters: " params
+    clear
+    go run playground.go $params
+    OUT=$?
+    if [ "$OUT" == "0" ];then
+      cp playground.go playground.old
+    fi
+    echo "---"
+    read -n1 -p "Press a key to continue"
+    clear
+  else
+    OUT=0
+    if [ $response == "e" ]; then
+      atom playground.go 2>/dev/null
+      echo "Run editor"
+    elif [ $response == "b" ]; then
+      cp playground.old playground.go
+      echo "Restaure backup file from the last run without compile error"
+    elif [ $response == "s" ]; then
+      clear
+      cat playground.go
+      echo "---"
+      read -n1 -p "Press a key to continue"
+      clear
+    elif [ $response == "r" ]; then
+      read -p "Parameters: " params
+      clear
+      go run playground.go $params
+      OUT=$?
+      if [ "$OUT" == "0" ];then
+        cp playground.go playground.old
+      fi
+      echo "---"
+      read -n1 -p "Press a key to continue"
+      clear
+    fi
+  fi
+done
+
+response="-"
+if [ -f "playground.sav" ]; then
+  question="Replace your last work with current (y/n): "
+else
+  question="Save your last working script (y/n): "
+fi
+
+
+while [ ! $response == "y" ] && [ ! $response == "n" ]; do
+
+  read -n1 -p "$question" response
+  echo
+  if [ $response == "y" ]; then
+    echo "Ok -> Work saved !"
+    cp playground.old playground.sav
+  elif [ $response == "n" ]; then
+    echo "Work discarded"
+    if [ -f "playground.sav" ]; then
+      echo "(You last work remain unchanged)"
+    fi
+  fi
+  echo
+done
+rm playground.old
+rm playground.go
