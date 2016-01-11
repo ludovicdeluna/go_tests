@@ -21,6 +21,32 @@ In this sample, we demonstrate how :
   * Say to only build hello.go when you have a v1.5 or higher version of golang.
   * build code specific to a plaform in ui.v2 package (here, code for Linux).
 
+Developments
+============
+
+For developments :
+* Fork this repository
+* Set your GOPATH to your working folder :  
+  `export GOPATH=~/work`
+* Get your local copy :  
+  `git clone git_path_to_your_fork $GOPATH/src/github.com/ludovicdeluna/go_tests`
+* If you want: Add upstream to track my changes :  
+  `cd $GOPATH/src/github.com/ludovicdelun/go_tests`  
+  `git remote add -t master upstream https://github.com/ludovicdeluna/go_tests.git`
+
+For reuse :
+* Consider perhaps using a dual GOPATH like that (your work goes to go/work) :  
+  `export GOPATH=~/go/deps:~/go/work`
+* Get the package without install it:  
+  `go get -d github.com/ludovicdeluna/go_tests/...`
+* Move the package into vendor, or simply sync deps with vendors folder :
+  * Sync : `rsync -av ~/go/deps/src ~/go/work/src/ROOT_OF_YOUR_PROJECT/vendor`
+  * Reset deps folder : `rm -rf ~/go/deps/src`
+
+> To embed any package, always use vendor folder into the root of your project,
+> and activate vendor flag (need go 1.5). Clean your vendor : Keep only
+> packages you actively use (or required by them).
+
 Welcome to Hello Sample
 =======================
 
