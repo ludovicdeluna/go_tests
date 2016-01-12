@@ -1,58 +1,66 @@
 Sample in go
 ============
 
-Get this sample on your computer :
+## Get this sample on your computer (Linux/Mac):
 
-* Install go 1.5
-* Make your working folder and source : mkdir -p ~/work/src
-* Declare your working folder to Go : export GOPATH=~/work
-* You need vendoring activated for Go : export GO15VENDOREXPERIMENT=1
+**Install and configure your environment**
+* Install GIT (recommended, already installed on MacOS)
+* Install go 1.5 or later (type `go version` to check it)
+* Create your working folder and source : `mkdir -p ~/work/src`
+* Declare your working folder to Go : `export GOPATH=~/work`
+* You need vendoring activated (Go1.5 only) : `export GO15VENDOREXPERIMENT=1`
 
-Go into your working (cd $GOPATH) folder and type :
-* go get github.com/ludovicdeluna/go_tests/...
+**Install the package**
+* Go into your workspace (cd $GOPATH)
+* You have GIT : `go get github.com/ludovicdeluna/go_tests/...`  
+or
+* You haven't GIT :
+  * Download file from : https://github.com/ludovicdeluna/go_tests/archive/master.zip
+  * Create folder path : `mkdir -p $GOPATH/src/github.com/ludovicdeluna`
+  * Unpack the zip into it, this should create a new folder. Rename it to go_tests.
+  * Compile and install : `go install github.com/ludovicdeluna/go_tests/...`
 
-Test any binarie in $GOPATH/bin
+Test any binaries in $GOPATH/bin
+
+### What it is for...
 
 In this sample, we demonstrate how :
 * Use package name ready to be published on public DCVS (like github)
 * Use Vendored package for the "hello" command (need go1.5)
 * Make versioned packages as we do with ui.v1 et ui.v2. Easy, thanks to Go.
-* Use build directive into go source to
-  * Say to only build hello.go when you have a v1.5 or higher version of golang.
-  * build code specific to a plaform in ui.v2 package (here, code for Linux).
+* Use build directive into go source :
+  * Say to only build hello.go when you have a Go version 1.5 or later.
+  * Build specific platform code in ui.v2 package : Linux / Windows.
 
 Developments
 ============
 
 For developments :
 * Fork this repository
-* Set your GOPATH to your working folder :  
+* Declare your working folder to Go :  
   `export GOPATH=~/work`
-* Get your local copy :  
+* Get your local copy using GIT :  
   `git clone git_path_to_your_fork $GOPATH/src/github.com/ludovicdeluna/go_tests`
-* If you want: Add upstream to track my changes :  
+* If you want : Add upstream to track my changes :  
   `cd $GOPATH/src/github.com/ludovicdelun/go_tests`  
   `git remote add -t master upstream https://github.com/ludovicdeluna/go_tests.git`
 
 For reuse :
-* Consider perhaps using a dual GOPATH like that (your work goes to go/work) :  
+* Consider perhaps a dual GOPATH (your work goes to go/work) :  
   `export GOPATH=~/go/deps:~/go/work`
 * Get the package without install it:  
   `go get -d github.com/ludovicdeluna/go_tests/...`
-* Move the package into vendor, or simply sync deps with vendors folder :
+* Move the package into vendor, or simply sync deps with vendor folder :
   * Sync : `rsync -av ~/go/deps/src ~/go/work/src/ROOT_OF_YOUR_PROJECT/vendor`
   * Reset deps folder : `rm -rf ~/go/deps/src`
 
 > To embed any package, always use vendor folder into the root of your project,
-> and activate vendor flag (need go 1.5). Clean your vendor : Keep only
+> and activate vendor flag (Go1.5 only). Clean your vendor : Keep only
 > packages you actively use (or required by them).
 
-Welcome to Hello Sample
-=======================
 
-This is a simple markdown file for eventually goes into Github !
-
-Thanks.
+Other package techniques for Go
+===============================
 
 Sample Redirect :
 See go-import, realy useful
