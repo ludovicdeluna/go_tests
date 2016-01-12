@@ -1,6 +1,7 @@
 // +build go1.5
+
 // This package need vendoring activated. The build will be ignored by
-// go install or go build, thanks to build tag at line 1
+// go install or go build < 1.5, thanks to build tag at line 1
 // See: https://golang.org/pkg/go/build/
 package main
 
